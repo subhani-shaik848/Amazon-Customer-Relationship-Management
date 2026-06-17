@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Pro | Business Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Amazon+Ember:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --amazon-orange: #FF9900;
+    --amazon-dark-orange: #e47911;
+    --amazon-navy: #131921;
+    --amazon-blue: #232F3E;
+    --amazon-light-blue: #37475A;
+    --amazon-link: #007185;
+    --amazon-link-hover: #C7511F;
+    --amazon-green: #007600;
+    --amazon-red: #B12704;
+    --amazon-yellow: #FFA41C;
+    --bg: #EAEDED;
+    --card-bg: #FFFFFF;
+    --border: #DDD;
+    --text: #0F1111;
+    --text-muted: #565959;
+    --sidebar-w: 230px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Inter', 'Amazon Ember', Arial, sans-serif; background: var(--bg); color: var(--text); min-height:100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--amazon-navy);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  }
+  .topbar-logo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--amazon-orange);
+    letter-spacing: -1px;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .topbar-logo span { color: #fff; font-size: .7rem; }
+  .topbar-search {
+    flex: 1;
+    display: flex;
+    max-width: 700px;
+    height: 40px;
+  }
+  .topbar-search select {
+    background: #f3f3f3;
+    border: none;
+    padding: 0 8px;
+    font-size: .8rem;
+    border-radius: 4px 0 0 4px;
+    color: #555;
+    cursor: pointer;
+    width: 120px;
+  }
+  .topbar-search input {
+    flex: 1;
+    border: none;
+    padding: 0 12px;
+    font-size: .95rem;
+    outline: none;
+  }
+  .topbar-search-btn {
+    background: var(--amazon-orange);
+    border: none;
+    padding: 0 14px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    color: #333;
+    font-size: 1.1rem;
+    transition: background .15s;
+  }
+  .topbar-search-btn:hover { background: var(--amazon-dark-orange); }
+  .topbar-nav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+  .topbar-nav-item {
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: border-color .1s;
+    white-space: nowrap;
+  }
+  .topbar-nav-item:hover { border-color: #fff; }
+  .topbar-nav-item small { display: block; font-size: .7rem; color: #ccc; }
+  .topbar-nav-item strong { font-size: .85rem; }
+  .topbar-cart { display:flex; align-items:center; gap:4px; }
+  .topbar-cart .count { color: var(--amazon-orange); font-weight:700; font-size:1rem; }
+
+  /* ── SUB-BAR ── */
+  .subbar {
+    background: var(--amazon-blue);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 12px;
+    height: 38px;
+    overflow-x: auto;
+  }
+  .subbar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 12px;
+    font-size: .85rem;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .subbar a:hover, .subbar a.active { border-color: #fff; }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; min-height: calc(100vh - 98px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 98px;
+    height: calc(100vh - 98px);
+    overflow-y: auto;
+  }
+  .sidebar-section { margin-bottom: 20px; }
+  .sidebar-heading {
+    font-size: .95rem;
+    font-weight: 700;
+    padding: 4px 16px 8px;
+    color: var(--text);
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    font-size: .87rem;
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .1s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-link:hover { background: #f0f2f2; }
+  .sidebar-link.active {
+    background: #fff3e0;
+    border-left-color: var(--amazon-orange);
+    font-weight: 600;
+    color: var(--amazon-link-hover);
+  }
+  .sidebar-link i { width: 18px; color: var(--text-muted); font-size: .9rem; }
+  .sidebar-link.active i { color: var(--amazon-link-hover); }
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+  .badge-count {
+    margin-left: auto;
+    background: var(--amazon-orange);
+    color: #111;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; padding: 16px; overflow-x: hidden; }
+
+  /* ── PAGE SECTIONS ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── AMAZON CARDS ── */
+  .amz-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 5px rgba(15,17,17,.08);
+  }
+  .amz-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  /* ── STAT GRID ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    box-shadow: 0 2px 5px rgba(15,17,17,.06);
+    transition: box-shadow .2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 14px rgba(15,17,17,.12); }
+  .stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .stat-icon.orange { background: #fff3e0; color: var(--amazon-orange); }
+  .stat-icon.blue { background: #e8f4f8; color: var(--amazon-link); }
+  .stat-icon.green { background: #e7f5e7; color: var(--amazon-green); }
+  .stat-icon.red { background: #fdf0ec; color: var(--amazon-red); }
+  .stat-label { font-size: .78rem; color: var(--text-muted); margin-bottom: 4px; }
+  .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+  .stat-trend { font-size: .75rem; margin-top: 3px; }
+  .stat-trend.up { color: var(--amazon-green); }
+  .stat-trend.down { color: var(--amazon-red); }
+
+  /* ── TABLES ── */
+  .amz-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .amz-table thead th {
+    background: #f0f2f2;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .amz-table tbody tr { border-bottom: 1px solid #f0f2f2; transition: background .1s; }
+  .amz-table tbody tr:hover { background: #f7f8f8; }
+  .amz-table td { padding: 12px 14px; vertical-align: middle; }
+  .amz-table .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .8rem;
+    color: #fff;
+    flex-shrink: 0;
+    margin-right: 10px;
+  }
+  .amz-table .name-cell { display: flex; align-items: center; }
+  .amz-table .name-cell strong { display: block; font-size: .9rem; }
+  .amz-table .name-cell small { color: var(--text-muted); font-size: .78rem; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .badge-green { background: #e7f5e7; color: #007600; border: 1px solid #b2dfb2; }
+  .badge-orange { background: #fff3e0; color: #c45500; border: 1px solid #f0c080; }
+  .badge-red { background: #fdf0ec; color: #B12704; border: 1px solid #f5c5b0; }
+  .badge-blue { background: #e8f4f8; color: #007185; border: 1px solid #b0d8e0; }
+  .badge-gray { background: #f0f2f2; color: #565959; border: 1px solid #ddd; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px; border: 1px solid;
+    font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .15s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(to bottom, #ffd814, #f7ca00);
+    border-color: #f0b400;
+    color: #111;
+  }
+  .btn-primary:hover { background: linear-gradient(to bottom, #f7ca00, #e8bb00); }
+  .btn-secondary {
+    background: linear-gradient(to bottom, #f0f2f2, #e3e6e6);
+    border-color: #adb1b8;
+    color: #111;
+  }
+  .btn-secondary:hover { background: linear-gradient(to bottom, #e3e6e6, #d5d9d9); }
+  .btn-danger { background: #fff; border-color: #adb1b8; color: var(--amazon-red); }
+  .btn-danger:hover { background: #fdf0ec; }
+  .btn-sm { padding: 4px 10px; font-size: .78rem; border-radius: 6px; }
+
+  /* ── SEARCH BOX in page ── */
+  .page-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .page-search input {
+    flex: 1;
+    max-width: 340px;
+    padding: 8px 14px 8px 36px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: .9rem;
+    outline: none;
+    position: relative;
+  }
+  .page-search input:focus { border-color: var(--amazon-orange); box-shadow: 0 0 0 2px rgba(255,153,0,.25); }
+  .search-wrap { position: relative; flex: 1; max-width: 340px; }
+  .search-wrap i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: .9rem; pointer-events: none; }
+  .search-wrap input { width: 100%; padding: 8px 14px 8px 36px; border: 1px solid var(--border); border-radius: 6px; font-size:.9rem; outline:none; }
+  .search-wrap input:focus { border-color: var(--amazon-orange); box-shadow: 0 0 0 2px rgba(255,153,0,.25); }
+
+  /* ── PIPELINE COLUMNS ── */
+  .pipeline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .pipeline-col {
+    background: #f7f8f8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .pipeline-col-header {
+    padding: 10px 14px;
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pipeline-col-header.new { background: #e8f4f8; color: var(--amazon-link); }
+  .pipeline-col-header.contacted { background: #fff3e0; color: #c45500; }
+  .pipeline-col-header.interested { background: #e7f5e7; color: var(--amazon-green); }
+  .pipeline-col-header.converted { background: #e8e8ff; color: #4040c0; }
+  .pipeline-col-body { padding: 10px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; }
+  .pipeline-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(15,17,17,.08);
+    transition: box-shadow .15s;
+    cursor: default;
+  }
+  .pipeline-card:hover { box-shadow: 0 3px 10px rgba(15,17,17,.14); }
+  .pipeline-card-name { font-weight: 600; font-size: .88rem; margin-bottom: 4px; }
+  .pipeline-card-meta { font-size: .76rem; color: var(--text-muted); }
+  .pipeline-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f2f2;
+    font-size: .76rem;
+  }
+  .score-pill {
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #e7f5e7;
+    color: var(--amazon-green);
+    font-weight: 600;
+  }
+
+  /* ── TICKET CARDS ── */
+  .ticket-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--amazon-orange);
+    transition: box-shadow .15s;
+  }
+  .ticket-card:hover { box-shadow: 0 3px 10px rgba(15,17,17,.1); }
+  .ticket-card.resolved { border-left-color: var(--amazon-green); }
+  .ticket-card.in-progress { border-left-color: #ffa41c; }
+  .ticket-card.closed { border-left-color: var(--text-muted); }
+  .ticket-subject { font-weight: 600; font-size: .93rem; }
+  .ticket-meta { font-size: .8rem; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── CHART CONTAINER ── */
+  .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .chart-wrap { position: relative; height: 260px; }
+
+  /* ── ACTIVITY TIMELINE ── */
+  .timeline { display: flex; flex-direction: column; gap: 14px; position: relative; padding-left: 20px; border-left: 2px solid var(--border); }
+  .timeline-item { position: relative; }
+  .timeline-dot {
+    position: absolute;
+    left: -25px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--amazon-orange);
+    border: 2px solid var(--bg);
+  }
+  .timeline-dot.green { background: var(--amazon-green); }
+  .timeline-time { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── TICKET STATS ── */
+  .ticket-stat-row { display: flex; gap: 12px; margin-bottom: 14px; }
+  .ticket-stat {
+    flex: 1;
+    background: #f7f8f8;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .ticket-stat .num { font-size: 1.6rem; font-weight: 700; }
+  .ticket-stat .lbl { font-size: .75rem; color: var(--text-muted); text-transform: uppercase; }
+
+  /* ── MODAL ── */
+  .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:2000; align-items:center; justify-content:center; }
+  .modal-backdrop.open { display:flex; }
+  .modal {
+    background: var(--card-bg);
+    border-radius: 10px;
+    width: 480px;
+    max-width: 96vw;
+    box-shadow: 0 8px 40px rgba(0,0,0,.3);
+    overflow: hidden;
+  }
+  .modal-header {
+    background: var(--amazon-navy);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .modal-body { padding: 20px; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 5px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: .9rem;
+    outline: none;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--amazon-orange);
+    box-shadow: 0 0 0 2px rgba(255,153,0,.2);
+  }
+  .close-btn { background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--amazon-navy);
+    color: #ddd;
+    text-align: center;
+    padding: 20px;
+    font-size: .82rem;
+    margin-top: 24px;
+  }
+  footer a { color: var(--amazon-orange); text-decoration: none; }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb { font-size: .82rem; color: var(--text-muted); margin-bottom: 12px; }
+  .breadcrumb a { color: var(--amazon-link); text-decoration: none; cursor: pointer; }
+  .breadcrumb a:hover { color: var(--amazon-link-hover); text-decoration: underline; }
+
+  /* ── NOTIFICATION PILL ── */
+  .notif-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--amazon-red); color: #fff;
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: .65rem; font-weight: 700;
+    position: absolute; top: 2px; right: 2px;
+  }
+  .relative { position: relative; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-row { grid-template-columns: 1fr; }
+    .pipeline-grid { grid-template-columns: repeat(2, 1fr); }
+    .sidebar { display: none; }
+    .main { padding: 10px; }
+  }
+  @media (max-width: 600px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .pipeline-grid { grid-template-columns: 1fr; }
+    .topbar-search { display: none; }
+  }
+
+  /* ── DEALS TABLE HIGHLIGHT ── */
+  .deal-won { background: rgba(0, 118, 0, .05); }
+  .deal-lost { background: rgba(177, 39, 4, .05); }
+
+  /* ── USER TABLE ── */
+  .user-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .85rem; color: #fff;
+    margin-right: 10px; flex-shrink: 0;
+  }
+
+  /* Reports page */
+  .reports-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 700px) { .reports-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo" onclick="navigate('dashboard')">
+    CRM<span>pro</span>
+  </div>
+  <div class="topbar-search">
+    <select>
+      <option>All Sections</option>
+      <option>Customers</option>
+      <option>Leads</option>
+      <option>Deals</option>
+      <option>Tickets</option>
+    </select>
+    <input type="text" placeholder="Search customers, leads, deals..." id="globalSearch">
+    <button class="topbar-search-btn"><i class="fas fa-search"></i></button>
+  </div>
+  <div class="topbar-nav">
+    <div class="topbar-nav-item relative" onclick="navigate('users')">
+      <small>Hello, Admin</small>
+      <strong><i class="fas fa-user-circle"></i> Account</strong>
+    </div>
+    <div class="topbar-nav-item relative" onclick="navigate('tickets')">
+      <small>Support</small>
+      <strong><i class="fas fa-ticket-alt"></i> Tickets</strong>
+      <span class="notif-badge">3</span>
+    </div>
+    <div class="topbar-nav-item" onclick="navigate('deals')">
+      <small>Active</small>
+      <strong><i class="fas fa-handshake"></i> Deals</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SUB-BAR -->
+<div class="subbar">
+  <a onclick="navigate('dashboard')" id="sub-dashboard" class="active"><i class="fas fa-bars"></i> All</a>
+  <a onclick="navigate('dashboard')" id="sub-home">Dashboard</a>
+  <a onclick="navigate('customers')" id="sub-customers">Customers</a>
+  <a onclick="navigate('leads')" id="sub-leads">Leads Pipeline</a>
+  <a onclick="navigate('deals')" id="sub-deals">Deals</a>
+  <a onclick="navigate('tickets')" id="sub-tickets">Support Center</a>
+  <a onclick="navigate('reports')" id="sub-reports">Reports</a>
+  <a onclick="navigate('users')" id="sub-users">User Management</a>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Navigation</div>
+      <a class="sidebar-link active" id="nav-dashboard" onclick="navigate('dashboard')">
+        <i class="fas fa-th-large"></i> Dashboard
+      </a>
+      <a class="sidebar-link" id="nav-customers" onclick="navigate('customers')">
+        <i class="fas fa-users"></i> Customers
+        <span class="badge-count">48</span>
+      </a>
+      <a class="sidebar-link" id="nav-leads" onclick="navigate('leads')">
+        <i class="fas fa-filter"></i> Leads Pipeline
+        <span class="badge-count">12</span>
+      </a>
+      <a class="sidebar-link" id="nav-deals" onclick="navigate('deals')">
+        <i class="fas fa-handshake"></i> Deals
+      </a>
+      <a class="sidebar-link" id="nav-tickets" onclick="navigate('tickets')">
+        <i class="fas fa-ticket-alt"></i> Support Tickets
+        <span class="badge-count">3</span>
+      </a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Admin</div>
+      <a class="sidebar-link" id="nav-reports" onclick="navigate('reports')">
+        <i class="fas fa-chart-pie"></i> Reports & Analytics
+      </a>
+      <a class="sidebar-link" id="nav-users" onclick="navigate('users')">
+        <i class="fas fa-user-shield"></i> User Management
+      </a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Quick Actions</div>
+      <a class="sidebar-link" onclick="openModal('addCustomer')">
+        <i class="fas fa-user-plus"></i> Add Customer
+      </a>
+      <a class="sidebar-link" onclick="openModal('addLead')">
+        <i class="fas fa-plus-circle"></i> New Lead
+      </a>
+      <a class="sidebar-link" onclick="openModal('addTicket')">
+        <i class="fas fa-headset"></i> Open Ticket
+      </a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-link" style="color:var(--amazon-red);" onclick="alert('Logged out (demo)')">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══════════════════ DASHBOARD ══════════════════ -->
+    <div class="page active" id="page-dashboard">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › Dashboard</div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="stat-label">Total Customers</div>
+            <div class="stat-value">48</div>
+            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8% this month</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-filter"></i></div>
+          <div>
+            <div class="stat-label">Active Leads</div>
+            <div class="stat-value">12</div>
+            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 3 new today</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-handshake"></i></div>
+          <div>
+            <div class="stat-label">Closed Deals</div>
+            <div class="stat-value">7</div>
+            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 2 this week</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-dollar-sign"></i></div>
+          <div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value">$94,200</div>
+            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 14% vs last month</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-chart-line" style="color:var(--amazon-orange)"></i> Sales Pipeline Performance</div>
+          <div class="chart-wrap"><canvas id="pipelineChart"></canvas></div>
+        </div>
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-chart-donut" style="color:var(--amazon-orange)"></i> Lead Sources</div>
+          <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-clock" style="color:var(--amazon-orange)"></i> Activity Timeline</div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot green"></div>
+              <div><strong style="font-size:.88rem">Deal closed — Acme Corp ($12,500)</strong></div>
+              <div class="timeline-time">10 min ago</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div><strong style="font-size:.88rem">New lead added — Ravi Sharma (Website)</strong></div>
+              <div class="timeline-time">45 min ago</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot green"></div>
+              <div><strong style="font-size:.88rem">Ticket #38 resolved — Login issue</strong></div>
+              <div class="timeline-time">1 hr ago</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div><strong style="font-size:.88rem">Customer updated — Priya Mehta</strong></div>
+              <div class="timeline-time">2 hrs ago</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div><strong style="font-size:.88rem">New deal created — TechVision Ltd ($8,000)</strong></div>
+              <div class="timeline-time">3 hrs ago</div>
+            </div>
+          </div>
+        </div>
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-ticket-alt" style="color:var(--amazon-orange)"></i> Recent Tickets</div>
+          <div class="ticket-card in-progress">
+            <div>
+              <div class="ticket-subject">Login not working</div>
+              <div class="ticket-meta">In Progress · Ananya Rao</div>
+            </div>
+            <span class="badge badge-orange">In Progress</span>
+          </div>
+          <div class="ticket-card">
+            <div>
+              <div class="ticket-subject">Invoice not received</div>
+              <div class="ticket-meta">Open · Amit Gupta</div>
+            </div>
+            <span class="badge badge-blue">Open</span>
+          </div>
+          <div class="ticket-card resolved">
+            <div>
+              <div class="ticket-subject">Data export issue</div>
+              <div class="ticket-meta">Resolved · Neha Singh</div>
+            </div>
+            <span class="badge badge-green">Resolved</span>
+          </div>
+          <a class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;margin-top:10px;" onclick="navigate('tickets')">
+            <i class="fas fa-arrow-right"></i> View All Tickets
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ CUSTOMERS ══════════════════ -->
+    <div class="page" id="page-customers">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › Customers</div>
+      <div class="amz-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div class="amz-card-title" style="margin:0;border:none;padding:0">Customer Directory</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="customerSearch" placeholder="Search customers…" oninput="filterCustomers()">
+            </div>
+            <button class="btn btn-secondary btn-sm"><i class="fas fa-file-excel"></i> Export</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addCustomer')"><i class="fas fa-plus"></i> Add Customer</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="amz-table" id="customerTable">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Company</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Orders</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customerBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ LEADS ══════════════════ -->
+    <div class="page" id="page-leads">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › Leads Pipeline</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="font-size:1.1rem;font-weight:700">Leads Board</h2>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addLead')"><i class="fas fa-plus"></i> New Lead</button>
+      </div>
+      <div class="pipeline-grid" id="pipelineBoard"></div>
+    </div>
+
+    <!-- ══════════════════ DEALS ══════════════════ -->
+    <div class="page" id="page-deals">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › Deals</div>
+      <div class="amz-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="amz-card-title" style="margin:0;border:none;padding:0">Deals & Opportunities</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('addDeal')"><i class="fas fa-plus"></i> Create Deal</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="amz-table" id="dealsTable">
+            <thead>
+              <tr>
+                <th>Deal Name</th>
+                <th>Customer</th>
+                <th>Value</th>
+                <th>Stage</th>
+                <th>Close Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dealsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ TICKETS ══════════════════ -->
+    <div class="page" id="page-tickets">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › Support Center</div>
+      <div class="ticket-stat-row">
+        <div class="ticket-stat">
+          <div class="num" id="t-total">8</div>
+          <div class="lbl">Total</div>
+        </div>
+        <div class="ticket-stat">
+          <div class="num" style="color:var(--amazon-link)" id="t-open">3</div>
+          <div class="lbl">Open</div>
+        </div>
+        <div class="ticket-stat">
+          <div class="num" style="color:#ffa41c" id="t-inprog">2</div>
+          <div class="lbl">In Progress</div>
+        </div>
+        <div class="ticket-stat">
+          <div class="num" style="color:var(--amazon-green)" id="t-resolved">3</div>
+          <div class="lbl">Resolved</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="font-size:1.05rem;font-weight:700">Support Tickets</h2>
+        <button class="btn btn-primary btn-sm" onclick="openModal('addTicket')"><i class="fas fa-plus"></i> Open Ticket</button>
+      </div>
+      <div id="ticketList"></div>
+    </div>
+
+    <!-- ══════════════════ REPORTS ══════════════════ -->
+    <div class="page" id="page-reports">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › Reports</div>
+      <div class="reports-grid">
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-chart-bar" style="color:var(--amazon-orange)"></i> Monthly Revenue</div>
+          <div class="chart-wrap"><canvas id="revChart"></canvas></div>
+        </div>
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-chart-pie" style="color:var(--amazon-orange)"></i> Deal Stages</div>
+          <div class="chart-wrap"><canvas id="stageChart"></canvas></div>
+        </div>
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-users" style="color:var(--amazon-orange)"></i> Customer Acquisition</div>
+          <div class="chart-wrap"><canvas id="acqChart"></canvas></div>
+        </div>
+        <div class="amz-card">
+          <div class="amz-card-title"><i class="fas fa-headset" style="color:var(--amazon-orange)"></i> Ticket Resolution Rate</div>
+          <div class="chart-wrap"><canvas id="tickChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ USERS ══════════════════ -->
+    <div class="page" id="page-users">
+      <div class="breadcrumb"><a onclick="navigate('dashboard')">Home</a> › User Management</div>
+      <div class="amz-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="amz-card-title" style="margin:0;border:none;padding:0">Team Members</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('addUser')"><i class="fas fa-user-plus"></i> Add User</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="amz-table">
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Role</th><th>Deals Closed</th><th>Points</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>© 2025 CRM Pro · Built with <span style="color:var(--amazon-red)">♥</span> for your business · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Support</a></div>
+</footer>
+
+<!-- ── MODALS ── -->
+<!-- Add Customer -->
+<div class="modal-backdrop" id="modal-addCustomer">
+  <div class="modal">
+    <div class="modal-header">
+      <span><i class="fas fa-user-plus"></i> Add New Customer</span>
+      <button class="close-btn" onclick="closeModal('addCustomer')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="c-name" placeholder="e.g. Ravi Kumar"></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="c-email" placeholder="ravi@company.com"></div>
+      <div class="form-group"><label>Phone</label><input type="text" id="c-phone" placeholder="+91 98765 43210"></div>
+      <div class="form-group"><label>Company</label><input type="text" id="c-company" placeholder="Company Ltd."></div>
+      <div class="form-group"><label>Status</label>
+        <select id="c-status"><option>Active</option><option>Inactive</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addCustomer')">Cancel</button>
+      <button class="btn btn-primary" onclick="addCustomer()"><i class="fas fa-save"></i> Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Lead -->
+<div class="modal-backdrop" id="modal-addLead">
+  <div class="modal">
+    <div class="modal-header">
+      <span><i class="fas fa-filter"></i> Add New Lead</span>
+      <button class="close-btn" onclick="closeModal('addLead')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Customer Name *</label><input type="text" id="l-name" placeholder="Prospect name"></div>
+      <div class="form-group"><label>Source</label>
+        <select id="l-source"><option>Website</option><option>Referral</option><option>Cold Call</option><option>Social Media</option><option>Email Campaign</option></select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select id="l-status"><option>New</option><option>Contacted</option><option>Interested</option><option>Converted</option></select>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="l-notes" rows="3" placeholder="Add notes…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addLead')">Cancel</button>
+      <button class="btn btn-primary" onclick="addLead()"><i class="fas fa-save"></i> Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Deal -->
+<div class="modal-backdrop" id="modal-addDeal">
+  <div class="modal">
+    <div class="modal-header">
+      <span><i class="fas fa-handshake"></i> Create Deal</span>
+      <button class="close-btn" onclick="closeModal('addDeal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Deal Name *</label><input type="text" id="d-name" placeholder="Project name"></div>
+      <div class="form-group"><label>Value ($) *</label><input type="number" id="d-value" placeholder="5000"></div>
+      <div class="form-group"><label>Stage</label>
+        <select id="d-stage"><option>Prospect</option><option>Proposal Sent</option><option>Negotiation</option><option>Closed Won</option><option>Closed Lost</option></select>
+      </div>
+      <div class="form-group"><label>Close Date</label><input type="date" id="d-date"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addDeal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addDeal()"><i class="fas fa-save"></i> Save Deal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Ticket -->
+<div class="modal-backdrop" id="modal-addTicket">
+  <div class="modal">
+    <div class="modal-header">
+      <span><i class="fas fa-headset"></i> Open Support Ticket</span>
+      <button class="close-btn" onclick="closeModal('addTicket')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Subject *</label><input type="text" id="ti-subject" placeholder="Briefly describe the issue"></div>
+      <div class="form-group"><label>Customer *</label><input type="text" id="ti-customer" placeholder="Customer name"></div>
+      <div class="form-group"><label>Description</label><textarea id="ti-desc" rows="3" placeholder="Detailed description…"></textarea></div>
+      <div class="form-group"><label>Priority</label>
+        <select id="ti-priority"><option>Low</option><option>Medium</option><option>High</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addTicket')">Cancel</button>
+      <button class="btn btn-primary" onclick="addTicket()"><i class="fas fa-save"></i> Open Ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User -->
+<div class="modal-backdrop" id="modal-addUser">
+  <div class="modal">
+    <div class="modal-header">
+      <span><i class="fas fa-user-shield"></i> Add User</span>
+      <button class="close-btn" onclick="closeModal('addUser')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Name *</label><input type="text" id="u-name" placeholder="Full name"></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="u-email" placeholder="user@company.com"></div>
+      <div class="form-group"><label>Role</label>
+        <select id="u-role"><option>Sales</option><option>Support</option><option>Admin</option></select>
+      </div>
+      <div class="form-group"><label>Password</label><input type="password" id="u-pass" placeholder="••••••••"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addUser')">Cancel</button>
+      <button class="btn btn-primary" onclick="addUser()"><i class="fas fa-save"></i> Add User</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   DATA STORE
+═══════════════════════════════════════════════════ */
+const avatarColors = ['#c45500','#007185','#007600','#B12704','#4040c0','#8B5CF6','#0369a1','#b45309'];
+function randColor(name){ return avatarColors[name.charCodeAt(0)%avatarColors.length]; }
+function initials(n){ return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+
+let customers = [
+  {id:1,name:'Ravi Kumar',email:'ravi@acmecorp.com',phone:'+91 98765 43210',company:'Acme Corp',status:'Active',orders:14},
+  {id:2,name:'Priya Mehta',email:'priya@techvision.com',phone:'+91 87654 32109',company:'TechVision Ltd',status:'Active',orders:7},
+  {id:3,name:'Ananya Rao',email:'ananya@designhub.in',phone:'+91 76543 21098',company:'Design Hub',status:'Inactive',orders:3},
+  {id:4,name:'Amit Gupta',email:'amit@cloudsoft.io',phone:'+91 65432 10987',company:'CloudSoft',status:'Active',orders:22},
+  {id:5,name:'Neha Singh',email:'neha@marketpro.com',phone:'+91 54321 09876',company:'MarketPro',status:'Active',orders:9},
+  {id:6,name:'Deepak Joshi',email:'deepak@retailex.com',phone:'+91 43210 98765',company:'RetailEx',status:'Active',orders:11},
+  {id:7,name:'Kavya Nair',email:'kavya@fingroup.in',phone:'+91 99887 77665',company:'FinGroup',status:'Inactive',orders:2},
+];
+
+let leads = [
+  {id:1,name:'Suresh Babu',source:'Website',status:'New',score:72,date:'Jun 10'},
+  {id:2,name:'Lakshmi Devi',source:'Referral',status:'Contacted',score:85,date:'Jun 9'},
+  {id:3,name:'Harish Nath',source:'Cold Call',status:'Interested',score:91,date:'Jun 8'},
+  {id:4,name:'Meena Patel',source:'Social Media',status:'New',score:65,date:'Jun 12'},
+  {id:5,name:'Arjun Reddy',source:'Email Campaign',status:'Converted',score:95,date:'Jun 5'},
+  {id:6,name:'Sneha Iyer',source:'Referral',status:'Contacted',score:78,date:'Jun 11'},
+  {id:7,name:'Rahul Sharma',source:'Website',status:'Interested',score:88,date:'Jun 7'},
+];
+
+let deals = [
+  {id:1,name:'Acme Corp ERP',customer:'Ravi Kumar',value:12500,stage:'Closed Won',date:'Jun 15'},
+  {id:2,name:'TechVision CRM Setup',customer:'Priya Mehta',value:8000,stage:'Negotiation',date:'Jun 28'},
+  {id:3,name:'CloudSoft Migration',customer:'Amit Gupta',value:21000,stage:'Proposal Sent',date:'Jul 5'},
+  {id:4,name:'MarketPro Analytics',customer:'Neha Singh',value:5500,stage:'Prospect',date:'Jul 15'},
+  {id:5,name:'RetailEx Integration',customer:'Deepak Joshi',value:9200,stage:'Closed Lost',date:'Jun 1'},
+];
+
+let tickets = [
+  {id:1,subject:'Login not working',customer:'Ananya Rao',status:'In Progress',priority:'High',date:'Jun 17'},
+  {id:2,subject:'Invoice not received',customer:'Amit Gupta',status:'Open',priority:'Medium',date:'Jun 16'},
+  {id:3,subject:'Data export issue',customer:'Neha Singh',status:'Resolved',priority:'Low',date:'Jun 14'},
+  {id:4,subject:'Password reset failing',customer:'Ravi Kumar',status:'Open',priority:'High',date:'Jun 15'},
+  {id:5,subject:'Dashboard loads slowly',customer:'Priya Mehta',status:'In Progress',priority:'Medium',date:'Jun 13'},
+  {id:6,subject:'Report generation error',customer:'Deepak Joshi',status:'Resolved',priority:'Low',date:'Jun 10'},
+  {id:7,subject:'Email notifications off',customer:'Kavya Nair',status:'Open',priority:'Low',date:'Jun 12'},
+  {id:8,subject:'Mobile app crash',customer:'Suresh Babu',status:'Resolved',priority:'High',date:'Jun 8'},
+];
+
+let users = [
+  {id:1,name:'Admin User',email:'admin@crmPro.com',role:'Admin',deals:15,points:2400},
+  {id:2,name:'Sales Rep A',email:'salesA@crmpro.com',role:'Sales',deals:7,points:1100},
+  {id:3,name:'Support B',email:'supportB@crmpro.com',role:'Support',deals:0,points:650},
+  {id:4,name:'Sales Rep C',email:'salesC@crmpro.com',role:'Sales',deals:5,points:800},
+];
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  const n = document.getElementById('nav-'+page);
+  if(n) n.classList.add('active');
+  // render page content
+  if(page==='customers') renderCustomers();
+  if(page==='leads') renderLeads();
+  if(page==='deals') renderDeals();
+  if(page==='tickets') renderTickets();
+  if(page==='users') renderUsers();
+  if(page==='reports') renderReports();
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER CUSTOMERS
+═══════════════════════════════════════════════════ */
+function renderCustomers(filter=''){
+  const rows = customers.filter(c=>
+    c.name.toLowerCase().includes(filter.toLowerCase()) ||
+    c.company.toLowerCase().includes(filter.toLowerCase()) ||
+    c.email.toLowerCase().includes(filter.toLowerCase())
+  );
+  document.getElementById('customerBody').innerHTML = rows.length ? rows.map(c=>`
+    <tr>
+      <td>
+        <div class="name-cell">
+          <div class="avatar" style="background:${randColor(c.name)};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:#fff;margin-right:10px;">${initials(c.name)}</div>
+          <div><strong>${c.name}</strong><small>${c.company}</small></div>
+        </div>
+      </td>
+      <td>${c.company}</td>
+      <td><a href="mailto:${c.email}" style="color:var(--amazon-link)">${c.email}</a></td>
+      <td>${c.phone}</td>
+      <td><span class="badge ${c.status==='Active'?'badge-green':'badge-gray'}">${c.status}</span></td>
+      <td style="font-weight:600">${c.orders}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <a href="https://wa.me/${c.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-secondary btn-sm" title="WhatsApp"><i class="fab fa-whatsapp" style="color:#25d366"></i></a>
+          <button class="btn btn-secondary btn-sm" onclick="editCustomer(${c.id})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${c.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('') :
+    `<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-muted)"><i class="fas fa-user-slash" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.4"></i>No customers found.</td></tr>`;
+}
+function filterCustomers(){ renderCustomers(document.getElementById('customerSearch').value); }
+function deleteCustomer(id){ if(confirm('Delete this customer?')){ customers=customers.filter(c=>c.id!==id); renderCustomers(); } }
+function editCustomer(id){ alert('Edit customer #'+id+' (demo)'); }
+
+/* ═══════════════════════════════════════════════════
+   RENDER LEADS
+═══════════════════════════════════════════════════ */
+function renderLeads(){
+  const statuses=['New','Contacted','Interested','Converted'];
+  const headerClass={New:'new',Contacted:'contacted',Interested:'interested',Converted:'converted'};
+  document.getElementById('pipelineBoard').innerHTML = statuses.map(s=>{
+    const sl = leads.filter(l=>l.status===s);
+    return `<div class="pipeline-col">
+      <div class="pipeline-col-header ${headerClass[s]}">
+        <span>${s}</span><span style="background:rgba(0,0,0,.1);padding:1px 8px;border-radius:10px;font-size:.75rem">${sl.length}</span>
+      </div>
+      <div class="pipeline-col-body">
+        ${sl.length ? sl.map(l=>`
+          <div class="pipeline-card">
+            <div class="pipeline-card-name">${l.name}</div>
+            <div class="pipeline-card-meta"><i class="fas fa-link"></i> ${l.source}</div>
+            <div class="pipeline-card-footer">
+              <span style="color:var(--text-muted)">${l.date}</span>
+              <span class="score-pill">Score: ${l.score}</span>
+            </div>
+          </div>`).join('') :
+          `<div style="flex:1;display:flex;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:8px;color:var(--text-muted);font-size:.8rem;min-height:80px">No leads</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER DEALS
+═══════════════════════════════════════════════════ */
+function stageBadge(s){
+  if(s==='Closed Won') return '<span class="badge badge-green"><i class="fas fa-check-circle"></i> Closed Won</span>';
+  if(s==='Closed Lost') return '<span class="badge badge-red"><i class="fas fa-times-circle"></i> Closed Lost</span>';
+  if(s==='Negotiation') return '<span class="badge badge-orange">Negotiation</span>';
+  if(s==='Proposal Sent') return '<span class="badge badge-blue">Proposal Sent</span>';
+  return '<span class="badge badge-gray">Prospect</span>';
+}
+function renderDeals(){
+  document.getElementById('dealsBody').innerHTML = deals.map(d=>`
+    <tr class="${d.stage==='Closed Won'?'deal-won':d.stage==='Closed Lost'?'deal-lost':''}">
+      <td style="font-weight:600">${d.name}</td>
+      <td>${d.customer}</td>
+      <td style="color:var(--amazon-green);font-weight:700">$${d.value.toLocaleString()}</td>
+      <td>${stageBadge(d.stage)}</td>
+      <td>${d.date}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm" title="Invoice"><i class="fas fa-file-invoice"></i></button>
+          ${d.stage!=='Closed Won'&&d.stage!=='Closed Lost'?`<button class="btn btn-secondary btn-sm" style="color:var(--amazon-green)" onclick="closeDeal(${d.id})" title="Mark Won"><i class="fas fa-check"></i></button>`:''}
+          <button class="btn btn-secondary btn-sm" onclick="editDeal(${d.id})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteDeal(${d.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function closeDeal(id){ deals=deals.map(d=>d.id===id?{...d,stage:'Closed Won'}:d); renderDeals(); }
+function deleteDeal(id){ if(confirm('Delete this deal?')){ deals=deals.filter(d=>d.id!==id); renderDeals(); } }
+function editDeal(id){ alert('Edit deal #'+id+' (demo)'); }
+
+/* ═══════════════════════════════════════════════════
+   RENDER TICKETS
+═══════════════════════════════════════════════════ */
+function renderTickets(){
+  const open=tickets.filter(t=>t.status==='Open').length;
+  const inp=tickets.filter(t=>t.status==='In Progress').length;
+  const res=tickets.filter(t=>t.status==='Resolved').length;
+  document.getElementById('t-total').textContent=tickets.length;
+  document.getElementById('t-open').textContent=open;
+  document.getElementById('t-inprog').textContent=inp;
+  document.getElementById('t-resolved').textContent=res;
+  document.getElementById('ticketList').innerHTML = tickets.map(t=>{
+    const cls=t.status==='Resolved'?'resolved':t.status==='In Progress'?'in-progress':'';
+    const badge=t.status==='Resolved'?'badge-green':t.status==='In Progress'?'badge-orange':t.status==='Open'?'badge-blue':'badge-gray';
+    const pbadge=t.priority==='High'?'badge-red':t.priority==='Medium'?'badge-orange':'badge-gray';
+    return `<div class="ticket-card ${cls}">
+      <div>
+        <div class="ticket-subject">#${t.id} — ${t.subject}</div>
+        <div class="ticket-meta">Customer: ${t.customer} · ${t.date} · Priority: <span class="badge ${pbadge}">${t.priority}</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="badge ${badge}">${t.status}</span>
+        ${t.status!=='Resolved'?`<button class="btn btn-secondary btn-sm" onclick="resolveTicket(${t.id})"><i class="fas fa-check"></i> Resolve</button>`:''}
+        <button class="btn btn-danger btn-sm" onclick="deleteTicket(${t.id})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function resolveTicket(id){ tickets=tickets.map(t=>t.id===id?{...t,status:'Resolved'}:t); renderTickets(); }
+function deleteTicket(id){ if(confirm('Delete this ticket?')){ tickets=tickets.filter(t=>t.id!==id); renderTickets(); } }
+
+/* ═══════════════════════════════════════════════════
+   RENDER USERS
+═══════════════════════════════════════════════════ */
+function renderUsers(){
+  document.getElementById('usersBody').innerHTML = users.map(u=>`
+    <tr>
+      <td>
+        <div class="name-cell">
+          <div class="user-avatar" style="background:${randColor(u.name)}">${initials(u.name)}</div>
+          <strong>${u.name}</strong>
+        </div>
+      </td>
+      <td><a href="mailto:${u.email}" style="color:var(--amazon-link)">${u.email}</a></td>
+      <td><span class="badge ${u.role==='Admin'?'badge-orange':u.role==='Sales'?'badge-blue':'badge-gray'}">${u.role}</span></td>
+      <td style="font-weight:600">${u.deals}</td>
+      <td><span style="color:var(--amazon-orange);font-weight:700">🏆 ${u.points}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function deleteUser(id){ if(confirm('Remove user?')){ users=users.filter(u=>u.id!==id); renderUsers(); } }
+
+/* ═══════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════ */
+function openModal(name){ document.getElementById('modal-'+name).classList.add('open'); }
+function closeModal(name){ document.getElementById('modal-'+name).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open');}));
+
+function addCustomer(){
+  const name=document.getElementById('c-name').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  if(!name||!email){ alert('Name and email are required.'); return; }
+  customers.push({id:Date.now(),name,email,phone:document.getElementById('c-phone').value||'—',company:document.getElementById('c-company').value||'—',status:document.getElementById('c-status').value,orders:0});
+  closeModal('addCustomer');
+  ['c-name','c-email','c-phone','c-company'].forEach(f=>document.getElementById(f).value='');
+  navigate('customers');
+}
+
+function addLead(){
+  const name=document.getElementById('l-name').value.trim();
+  if(!name){ alert('Customer name required.'); return; }
+  const today=new Date(); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  leads.push({id:Date.now(),name,source:document.getElementById('l-source').value,status:document.getElementById('l-status').value,score:Math.floor(Math.random()*30)+60,date:months[today.getMonth()]+' '+today.getDate()});
+  closeModal('addLead');
+  document.getElementById('l-name').value=''; document.getElementById('l-notes').value='';
+  navigate('leads');
+}
+
+function addDeal(){
+  const name=document.getElementById('d-name').value.trim();
+  const value=parseFloat(document.getElementById('d-value').value);
+  if(!name||!value){ alert('Name and value required.'); return; }
+  deals.push({id:Date.now(),name,customer:'—',value,stage:document.getElementById('d-stage').value,date:document.getElementById('d-date').value||'TBD'});
+  closeModal('addDeal');
+  ['d-name','d-value','d-date'].forEach(f=>document.getElementById(f).value='');
+  navigate('deals');
+}
+
+function addTicket(){
+  const subject=document.getElementById('ti-subject').value.trim();
+  const customer=document.getElementById('ti-customer').value.trim();
+  if(!subject){ alert('Subject required.'); return; }
+  const today=new Date(); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  tickets.push({id:Date.now(),subject,customer:customer||'Unknown',status:'Open',priority:document.getElementById('ti-priority').value,date:months[today.getMonth()]+' '+today.getDate()});
+  closeModal('addTicket');
+  ['ti-subject','ti-customer','ti-desc'].forEach(f=>document.getElementById(f).value='');
+  navigate('tickets');
+}
+
+function addUser(){
+  const name=document.getElementById('u-name').value.trim();
+  const email=document.getElementById('u-email').value.trim();
+  if(!name||!email){ alert('Name and email required.'); return; }
+  users.push({id:Date.now(),name,email,role:document.getElementById('u-role').value,deals:0,points:0});
+  closeModal('addUser');
+  ['u-name','u-email','u-pass'].forEach(f=>document.getElementById(f).value='');
+  renderUsers();
+}
+
+/* ═══════════════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════════════ */
+let chartsInitialized = {};
+function renderReports(){
+  if(chartsInitialized.reports) return;
+  chartsInitialized.reports = true;
+  const opts = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} };
+  new Chart(document.getElementById('revChart'), { type:'bar', data:{ labels:['Jan','Feb','Mar','Apr','May','Jun'], datasets:[{data:[12000,18000,14500,22000,19000,25000],backgroundColor:'#FF9900',borderRadius:5}] }, options:{...opts,scales:{y:{beginAtZero:true,ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#f0f2f2'}},x:{grid:{display:false}}}} });
+  new Chart(document.getElementById('stageChart'), { type:'doughnut', data:{ labels:['Prospect','Proposal','Negotiation','Won','Lost'], datasets:[{data:[4,3,2,7,2],backgroundColor:['#ADB1B8','#007185','#FFA41C','#007600','#B12704']}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}} });
+  new Chart(document.getElementById('acqChart'), { type:'line', data:{ labels:['Jan','Feb','Mar','Apr','May','Jun'], datasets:[{data:[5,8,6,11,9,13],borderColor:'#007185',backgroundColor:'rgba(0,113,133,.15)',fill:true,tension:.4,pointBackgroundColor:'#007185'}] }, options:{...opts,scales:{y:{beginAtZero:true,grid:{color:'#f0f2f2'}},x:{grid:{display:false}}}} });
+  new Chart(document.getElementById('tickChart'), { type:'bar', data:{ labels:['Jan','Feb','Mar','Apr','May','Jun'], datasets:[{label:'Resolved',data:[4,6,5,8,7,9],backgroundColor:'#007600',borderRadius:4},{label:'Open',data:[2,3,4,2,3,2],backgroundColor:'#B12704',borderRadius:4}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{boxWidth:12,font:{size:11}}}},scales:{y:{beginAtZero:true,stacked:false,grid:{color:'#f0f2f2'}},x:{grid:{display:false}}}} });
+}
+
+function initDashboardCharts(){
+  if(chartsInitialized.dashboard) return;
+  chartsInitialized.dashboard = true;
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now=new Date(); const labels=[];
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); labels.push(months[d.getMonth()]); }
+  new Chart(document.getElementById('pipelineChart'), { type:'line', data:{ labels, datasets:[{label:'Revenue',data:[14000,18500,13000,22000,17000,25000],borderColor:'#FF9900',backgroundColor:'rgba(255,153,0,.15)',fill:true,tension:.4,pointBackgroundColor:'#FF9900',pointRadius:5}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'#f0f2f2'}},x:{grid:{display:false}}}} });
+  new Chart(document.getElementById('sourceChart'), { type:'doughnut', data:{ labels:['Website','Referral','Cold Call','Social','Email'], datasets:[{data:[35,25,15,15,10],backgroundColor:['#FF9900','#007185','#007600','#4040c0','#B12704']}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}}} });
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderCustomers();
+  initDashboardCharts();
+});
+</script>
+</body>
+</html>
